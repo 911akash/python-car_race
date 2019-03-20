@@ -180,7 +180,7 @@ def game_loop():
             crash()
             showScore(score)
             pygame.display.update()
-            clock.tick(120)
+            #clock.tick(120)
             #time.sleep(5)
 
 
