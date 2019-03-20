@@ -95,13 +95,17 @@ def game_loop():
 
         # things(thingx, thingy, thingw, thingh, color)
         for block in blocks:
-            if block.thing_starty == 595:
+            if block.thing_starty >= display_height:
                 blocks.remove(block)
                 block.thing_starty = 0
                 block.thing_startx = random.randrange(0, display_width - block.thing_width)
                 newblock = Block()
                 blocks.append(newblock)
                 score += 1
+            if block.thing_starty + block.thing_height >=y:
+                print('y crossover')
+                if (block.thing_startx + block.thing_width >= x) and (block.thing_startx <= x + car_width):
+                    crash()
 
             block.things(block.thing_startx, block.thing_starty)
             block.thing_starty += block.thing_speed
