@@ -13,6 +13,8 @@ pygame.display.set_caption('Formula 1')
 
 black = (0, 0, 0)
 white = (255, 255, 255)
+green = (0, 255, 0)
+red = (255, 0, 0)
 
 clock = pygame.time.Clock()
 carImg = pygame.image.load('racecar.png')
@@ -53,11 +55,34 @@ def message_display(text):
     TextRect.center = ((display_width / 2), (display_height / 2))
     gameDisplay.blit(TextSurf, TextRect)
     pygame.display.update()
+    #time.sleep(2)
     #game_loop()
 
 
+def start_page():
+    gameDisplay.fill(white)
+    largeText = pygame.font.Font('freesansbold.ttf', 115)
+    TextSurf, TextRect = text_objects("You Crashed", largeText)
+    TextRect.center = ((display_width / 2), (display_height / 2))
+
+    gameDisplay.blit(TextSurf, TextRect)
+    pygame.draw.rect(gameDisplay, green, (150, 450, 100, 50))
+    pygame.draw.rect(gameDisplay, red, (550, 450, 100, 50))
+    pygame.display.update()
+    clock.tick(20)
+    #time.sleep(2)
+
+
+def showScore(score):
+    scoreText = pygame.font.Font('freesansbold.ttf', 25)
+    TextSurf, TextRect = text_objects("SCORE:" + str(score), scoreText)
+    gameDisplay.blit(TextSurf, (0, 0))
+
+
 def crash():
-    message_display('You Crashed')
+    #message_display('You Crashed')
+    start_page()
+
 
 
 
@@ -67,7 +92,7 @@ def game_loop():
     x_change = 0
     crashed = False
     score = 0
-
+    is_crash = False
 
     blocks = []
     numberofBlocks = 1
@@ -94,37 +119,48 @@ def game_loop():
         gameDisplay.fill(white)
 
         # things(thingx, thingy, thingw, thingh, color)
-        for block in blocks:
-            if block.thing_starty >= display_height:
-                blocks.remove(block)
-                block.thing_starty = 0
-                block.thing_startx = random.randrange(0, display_width - block.thing_width)
-                newblock = Block()
-                blocks.append(newblock)
-                score += 1
-            if block.thing_starty + block.thing_height >=y:
-                print('y crossover')
-                if (block.thing_startx + block.thing_width >= x) and (block.thing_startx <= x + car_width):
-                    crash()
+        if not is_crash:
+            for block in blocks:
+                if block.thing_starty >= display_height:
+                    blocks.remove(block)
+                    block.thing_starty = 0
+                    block.thing_startx = random.randrange(0, display_width - block.thing_width)
+                    newblock = Block()
+                    blocks.append(newblock)
+                    score += 1
+                if block.thing_starty + block.thing_height >=y:
+                    print('y crossover')
+                    if (block.thing_startx + block.thing_width >= x) and (block.thing_startx <= x + car_width):
+                        is_crash = True
+                        crash()
+                        #crashed = True
+                        #continue
 
             block.things(block.thing_startx, block.thing_starty)
             block.thing_starty += block.thing_speed
 
         car(x, y)
 
-        x += x_change
+        if not is_crash:
+            x += x_change
 
-        if x > (display_width - car_width) or x < 0:
-            crash()
-        else:
-            car(x, y)
+            if x > (display_width - car_width) or x < 0:
+                crash()
+            else:
+                car(x, y)
 
-        scoreText = pygame.font.Font('freesansbold.ttf', 25)
-        TextSurf, TextRect = text_objects("SCORE:" + str(score), scoreText)
-        gameDisplay.blit(TextSurf, (0, 0))
+        showScore(score)
 
         pygame.display.update()
         clock.tick(120)
+
+        if is_crash:
+            crash()
+            showScore(score)
+            pygame.display.update()
+            clock.tick(120)
+            #time.sleep(5)
+
 
 game_loop()
 pygame.quit()
